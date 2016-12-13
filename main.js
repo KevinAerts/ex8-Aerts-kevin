@@ -39,7 +39,7 @@ var File = function(f_id, date_load, date_first_r, date_last_r, f_url, ref_link,
     this.contents_count = count_content;
 };
 
-var Content = function(c_id, mac_address, date, rssi, c_url, ref) {
+var Content = function(c_id, mac_address, date, rssi, c_url, ref, droneid, fileid) {
     this.id = c_id;
     this.mac_address = mac_address;
     this.datetime = date;
@@ -70,20 +70,22 @@ request(dronesSettings, function(error, response, dronesString) {
                                     request(filesSettings, function(error, response, filesString) {
                                         var files = JSON.parse(filesString);
                                         files.forEach(function(file) {
-                                            var fileSettings = new Settings("/files/" + file.id + "?format=json")
+                                            var fileSettings = new Settings("/files/" + file.id + "?format=json");
                                             request(fileSettings, function(error, response, fileString) {
                                                 var file = JSON.parse(fileString);
                                                 dal.insertFile(
                                                     new File(file.id, file.date_loaded, file.date_first_record, file.date_last_record, file.url, file.ref, file.contents, file.contents_count));
 
                                         
-                                     var contentSettings = new Settings("/files/" + file.id + "/contents?format=json&embed");
-                                                request(contentSettings, function(error, response, contentString) {
-                                                    var content = JSON.parse(contentString);
-                                                    /*console.log(drones);
-                                                    console.log("***************************************************************************");*/
-                                                   dal.insertContent(
-                                                                new Content(content.id, content.mac_address, content.datetime, content.rssi, content.url, content.ref));
+                        var contentsSettings = new Settings("/files/" + file.id + "/contents?format=json");
+                                    request(contentsSettings, function (error, response, contentsString){
+                                        var contents = JSON.parse(contentsString);
+                                        contents.forEach(function (content){
+                                           var contentSettings = new Settings("/files/" + file.id + "/contents/"+content.id+"?format=json");
+                                           request(contentSettings, function (error, response, contentString){
+                                               var content = JSON.parse(contentString);
+                                                                dal.insertContent(
+                                                    new Content(content.id, content.mac_address, content.datetime, content.rssi, content.url, content.ref));
 
                                                         });
                                                     });
@@ -92,6 +94,6 @@ request(dronesSettings, function(error, response, dronesString) {
                                         });
                                     });
                                 });
-                                
-
-                                    console.log("Hello World!");
+                            });
+                        });
+                        console.log("Hello World!");
