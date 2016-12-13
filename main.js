@@ -55,11 +55,11 @@ request(dronesSettings, function(error, response, dronesString) {
                 new Drone(drone.id, drone.name, drone.mac_address, drone.location, drone.last_packet_date, drone.files, drone.files_count));
 
 
-            var filesSettings = new Settings("/files?drone_id.is=" + drone.id + "&format=json");
+            var filesSettings = new Settings("/files?drone_id.is=" + drone.id + "&format=json&date_loaded.greaterOrEqual=2016-12-13T12:00:00");
             request(filesSettings, function(error, response, filesString) {
                 var files = JSON.parse(filesString);
                 files.forEach(function(file) {
-                    var fileSettings = new Settings("/files?drone_id.is=" + drone.id + "&format=json");
+                    var fileSettings = new Settings("/files/"+file.id+"?format=json")
                     request(fileSettings, function(error, response, fileString) {
                         var file = JSON.parse(fileString);
                         dal.insertFile(
