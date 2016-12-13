@@ -16,10 +16,14 @@ var Settings = function (url) {
 	};
 };
 
-var Drone = function (id, name, mac) {
-	this._id = id
+var Drone = function (id, name, mac_address,location,date,files,files_count) {
+	this._id = id;
 	this.name = name;
-	this.mac = mac;
+	this.mac_address = mac_address;
+        this.location= location;
+        this.date=date;
+        this.files=files;
+        this.files_count=files_count;
 };
 
 var dronesSettings = new Settings("/drones?format=json");
@@ -34,7 +38,8 @@ request(dronesSettings, function (error, response, dronesString) {
 		var droneSettings = new Settings("/drones/" + drone.id + "?format=json");
 		request(droneSettings, function (error, response, droneString) {
 			var drone = JSON.parse(droneString);
-			dal.insertDrone(new Drone(drone.id, drone.name, drone.mac_address));
+			dal.insertDrone(
+                                new Drone(drone.id, drone.name, drone.mac_address,drone.location,drone.date,drone.files,drone.files_count));
 		});
 	});
 });
